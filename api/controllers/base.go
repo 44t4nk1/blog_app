@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/44t4nk1/blog_app/api/models"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"log"
+	"net/http"
 )
 
 type Server struct {
@@ -24,4 +26,14 @@ func (server *Server) Initialise (Dbdriver, DbUser, DbPassword, DbPort, DbHost, 
 			fmt.Printf("We are connected to the %s database", Dbdriver)
 		}
 	}
+	server.DB.Debug().AutoMigrate(&models.User{}, &models.Post{}) //database migration
+
+	server.Router = mux.NewRouter()
+
+	server.initializeRoutes()
+}
+
+func (server *Server) Run(addr string) {
+	fmt.Println("Listening to port 8080")
+	log.Fatal(http.ListenAndServe(addr, server.Router))
 }
